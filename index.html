@@ -335,10 +335,8 @@
         // Only run animation if tab is visible
         if (document.hidden) return;
 
-        // Reduced rotation speed on mobile
-        const rotFactor = isMobile ? 0.5 : 1;
-        linesGroup.rotation.y += 0.0005 * rotFactor;
-        linesGroup.rotation.x += 0.0003 * rotFactor;
+        linesGroup.rotation.y += 0.0012;
+        linesGroup.rotation.x += 0.0006;
 
         // Use fewer calculations for opacity
         linesGroup.children.forEach(line => {
