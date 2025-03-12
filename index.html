@@ -13,10 +13,11 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Technika Digital">
   <meta name="twitter:description" content="We solve hard problems.">
-  
-  <title>technika</title>
+
+  <title>technika.digital</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
   <link href="https://fonts.googleapis.com/css2?family=Doto:wght@100..900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" loading="lazy">
   <style>
     /* Base styles */
@@ -69,7 +70,7 @@
       font-weight: 400;
       font-style: normal;
       font-variation-settings: "ROND" 0;
-      color: #096754;
+      color: #00b894; /* Improved contrast from #096754 */
       letter-spacing: 1px;
       text-transform: lowercase;
     }
@@ -100,12 +101,12 @@
       font-weight: 400;
       font-style: normal;
       font-variation-settings: "ROND" 0;
-      color: #096754;
+      color: #00b894;
     }
 
     p {
       margin-bottom: 1.5rem;
-      color: #f0f0e8; 
+      color: #f0f0e8;
       font-size: 1.1rem;
       line-height: 1.8;
     }
@@ -117,8 +118,8 @@
 
     .button {
       display: inline-block;
-      background: #095144;
-      color: #f5f5f0;
+      background: #00b894;
+      color: #000f0c;
       padding: 1rem 2rem;
       border-radius: 4px;
       text-decoration: none;
@@ -128,9 +129,9 @@
     }
 
     .button:hover {
-      background: #096754;
+      background: #00d1a0;
       transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(9, 81, 68, 0.3);
+      box-shadow: 0 5px 15px rgba(0, 209, 160, 0.3);
     }
 
     /* Footer */
@@ -142,6 +143,7 @@
       color: #a0a5a3;
     }
 
+    /* Responsive adjustments */
     @media (max-width: 768px) {
       .container {
         padding: 2rem 1.5rem;
@@ -182,7 +184,7 @@
 
 <div class="container" role="main">
   <header>
-    <h1 aria-label="Technika Digital">technika</h1>
+    <h1>technika</h1>
   </header>
 
   <main>
@@ -205,7 +207,7 @@
   </footer>
 </div>
 
-<!-- Load Three.js from CDN -->
+<!-- Load Three.js from CDN with integrity hash -->
 <script type="module">
   // Check for WebGL support
   function checkWebGLSupport() {
@@ -279,7 +281,7 @@
       
       for (let i = 0; i < lineCount; i++) {
         const material = new THREE.LineBasicMaterial({
-          color: 0x095144,
+                      color: 0x00b894,
           transparent: true,
           opacity: 0.3
         });
@@ -335,8 +337,8 @@
         // Only run animation if tab is visible
         if (document.hidden) return;
 
-        linesGroup.rotation.y += 0.0012;
-        linesGroup.rotation.x += 0.0006;
+        linesGroup.rotation.y += 0.0005;
+        linesGroup.rotation.x += 0.0003;
 
         // Use fewer calculations for opacity
         linesGroup.children.forEach(line => {
@@ -356,7 +358,6 @@
     }
   }
 
-  // Email protection script
   document.addEventListener('DOMContentLoaded', () => {
     // Set current year in footer
     const yearElement = document.getElementById('current-year');
@@ -370,9 +371,8 @@
       contactButton.addEventListener('click', function(e) {
         e.preventDefault();
         
-        // Obfuscated email - reconstructed at runtime to avoid scraping
         const parts = ['contact', '@', 'technika', '.', 'digital'];
-        const subject = encodeURIComponent('Technical Challenge Discussion');
+        const subject = encodeURIComponent('Technical Challenge');
         const body = encodeURIComponent(
           'Hello,\n\n' +
           'I\'d like to discuss a technical challenge.\n\n' +
