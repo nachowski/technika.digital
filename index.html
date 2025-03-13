@@ -125,11 +125,48 @@
     }
 
     footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       margin-top: 5rem;
       padding-top: 2rem;
       border-top: 1px solid #1A3C34;
       font-size: 0.9rem;
       color: #8AB9B5;
+    }
+
+    footer p {
+      margin: 0;
+    }
+
+    #toggle-controls {
+      background: none;
+      border: none;
+      color: #66CDAA;
+      cursor: pointer;
+      font-family: "Doto", sans-serif; 
+      font-size: 1.2rem;
+      padding: 0;
+      margin: 0 0.5rem 0 0; 
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .controls label {
+      font-size: 0.9rem;
+      color: #8AB9B5;
+    }
+
+    .controls input[type="range"] {
+      width: 100%;
+    }
+
+    .hidden {
+      display: none;
     }
 
     @media (max-width: 768px) {
@@ -141,7 +178,6 @@
       .cta { margin: 0.6rem 0 1.5rem; }
       .button { padding: 0.9rem 1.8rem; font-size: 1rem; }
     }
-    
   </style>
 </head>
 <body>
@@ -168,177 +204,322 @@
     </main>
 
     <footer>
-      Technika Digital © <span id="current-year">2025</span>.
+     
+      <p>Technika Digital © <span id="current-year">2025</span>.</p>
+      <button id="toggle-controls" aria-expanded="false">*</button>
+      <div id="particle-controls" class="controls hidden">
+        <label for="alpha-slider">&alpha;&nbsp;<span id="alpha-value">0.0015</span></label>
+        <input type="range" id="alpha-slider" min="0" max="0.01" step="0.0001" value="0.0015">
+
+        <label for="beta-slider">&beta;&nbsp;<span id="beta-value">800</span></label>
+        <input type="range" id="beta-slider" min="100" max="2000" step="100" value="800">
+
+        <label for="gamma-slider">&gamma;&nbsp;<span id="gamma-value">6.0</span></label>
+        <input type="range" id="gamma-slider" min="1" max="10" step="0.1" value="6.0">
+      </div>
     </footer>
   </div>
 
-<script type="module">
-  // Check for WebGL support
-  function checkWebGLSupport() {
-    if (!window.WebGLRenderingContext) return false;
-    const canvas = document.createElement('canvas');
-    return !!(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
-  }
-
-  // Initialize animation
-  document.addEventListener('DOMContentLoaded', () => {
-    if (!checkWebGLSupport()) {
-      document.getElementById('bg').style.display = 'none';
-      return;
+  <script type="module">
+    // Check for WebGL support
+    function checkWebGLSupport() {
+      if (!window.WebGLRenderingContext) return false;
+      const canvas = document.createElement('canvas');
+      return !!(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
     }
 
-    import('https://cdn.jsdelivr.net/npm/three@0.154.0/build/three.module.js')
-      .then((THREE) => initAnimation(THREE))
-      .catch(error => {
-        console.error('Failed to load Three.js:', error); // Minimal log for critical failure
+    // Initialize animation and sliders
+    document.addEventListener('DOMContentLoaded', () => {
+      window.particleConfig = {
+        rotationSpeed: 0.0015,
+        particleCount: 800,
+        particleSize: 6.0
+      };
+
+      // Set initial slider values and displays
+      document.getElementById('alpha-slider').value = window.particleConfig.rotationSpeed;
+      document.getElementById('beta-slider').value = window.particleConfig.particleCount;
+      document.getElementById('gamma-slider').value = window.particleConfig.particleSize;
+
+      document.getElementById('alpha-value').textContent = window.particleConfig.rotationSpeed.toFixed(4);
+      document.getElementById('beta-value').textContent = window.particleConfig.particleCount;
+      document.getElementById('gamma-value').textContent = window.particleConfig.particleSize.toFixed(1);
+
+      if (!checkWebGLSupport()) {
         document.getElementById('bg').style.display = 'none';
-      });
-  });
-
-  // Particle field visualization
-  function initAnimation(THREE) {
-    const canvas = document.getElementById('bg');
-    if (!canvas) return;
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
-    camera.position.z = 600;
-
-    const isMobile = window.innerWidth < 768;
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: !isMobile, alpha: true });
-    renderer.setClearColor(0x000000, 0);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-    const particleCount = isMobile ? 500 : 1000;
-    const maxRange = 1000;
-    const vertices = new Float32Array(particleCount * 3);
-    const colors = new Float32Array(particleCount * 3);
-    const sizes = new Float32Array(particleCount);
-    const palette = [0x1A3C34, 0x2E8B57, 0x66CDAA];
-
-    for (let i = 0; i < particleCount; i++) {
-      vertices[i * 3] = THREE.MathUtils.randFloatSpread(maxRange);
-      vertices[i * 3 + 1] = THREE.MathUtils.randFloatSpread(maxRange);
-      vertices[i * 3 + 2] = THREE.MathUtils.randFloatSpread(maxRange);
-
-      const color = new THREE.Color(palette[Math.floor(Math.random() * palette.length)]);
-      colors[i * 3] = color.r;
-      colors[i * 3 + 1] = color.g;
-      colors[i * 3 + 2] = color.b;
-
-      sizes[i] = 3 + Math.random() * 5;
-    }
-
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-    geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-
-    const material = new THREE.ShaderMaterial({
-      uniforms: { time: { value: 0 } },
-      vertexShader: `
-        attribute float size;
-        attribute vec3 color;
-        varying vec3 vColor;
-        void main() {
-          vColor = color;
-          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-          gl_PointSize = size * (300.0 / -mvPosition.z);
-          gl_Position = projectionMatrix * mvPosition;
-        }
-      `,
-      fragmentShader: `
-        varying vec3 vColor;
-        void main() {
-          float dist = length(gl_PointCoord - vec2(0.5));
-          if (dist > 0.5) discard;
-          gl_FragColor = vec4(vColor, 0.8);
-        }
-      `,
-      blending: THREE.AdditiveBlending,
-      depthTest: false,
-      transparent: true
-    });
-
-    const particles = new THREE.Points(geometry, material);
-    scene.add(particles);
-
-    // Device orientation setup (silent, subtle influence)
-    let useDeviceOrientation = false;
-    let gammaInfluence = 0, betaInfluence = 0;
-    if ('DeviceOrientationEvent' in window) { // Requires HTTPS in production
-      window.addEventListener('deviceorientation', (event) => {
-        if (event.beta !== null && event.gamma !== null) {
-          useDeviceOrientation = true;
-          gammaInfluence = THREE.MathUtils.clamp(THREE.MathUtils.degToRad(event.gamma || 0) / 180, -0.001, 0.001);
-          betaInfluence = THREE.MathUtils.clamp(THREE.MathUtils.degToRad(event.beta || 0) / 180, -0.001, 0.001);
-        }
-      });
-    }
-
-    // Resize handler with debounce
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      }, 250);
-    });
-
-    // Animation loop
-    let lastTime = 0;
-    const frameInterval = isMobile ? 32 : 16;
-    function animate(currentTime) {
-      requestAnimationFrame(animate);
-
-      const deltaTime = currentTime - lastTime;
-      if (deltaTime < frameInterval || document.hidden) return;
-      lastTime = currentTime;
-
-      material.uniforms.time.value = currentTime * 0.001;
-
-      let baseRotationY = 0.0002;
-      let baseRotationX = 0.0001;
-      if (useDeviceOrientation) {
-        baseRotationY += gammaInfluence;
-        baseRotationX += betaInfluence;
+        return;
       }
-      particles.rotation.y += baseRotationY;
-      particles.rotation.x += baseRotationX;
 
-      const positions = particles.geometry.attributes.position.array;
-      for (let i = 0; i < positions.length; i += 3) {
-        positions[i + 2] += Math.sin(currentTime * 0.0005 + positions[i]) * 0.05;
-        if (positions[i + 2] > maxRange / 2) positions[i + 2] -= maxRange;
-      }
-      particles.geometry.attributes.position.needsUpdate = true;
+      import('https://cdn.jsdelivr.net/npm/three@0.154.0/build/three.module.js')
+        .then((THREE) => {
+          initAnimation(THREE);
 
-      renderer.render(scene, camera);
-    }
-    animate(0);
-  }
+          // Slider event listeners
+          document.getElementById('alpha-slider').addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            window.particleConfig.rotationSpeed = value;
+            document.getElementById('alpha-value').textContent = value.toFixed(4);
+          });
 
-  // Foreground interactivity
-  const contactButton = document.getElementById('contact-button');
-  if (contactButton) {
-    contactButton.addEventListener('click', (e) => {
-      e.preventDefault();
-      const email = ['contact', '@', 'technika', '.', 'digital'].join('');
-      const subject = encodeURIComponent('Website Inquiry');
-      const body = encodeURIComponent(
-        "Dear Technika Digital Team,\n" +
-        "I'd like to discuss [topic].\n" +
-        "Details: [details]\n" +
-        "Available times: [time slots]\n" +
-        "Thank you,\n"
-      );
-      window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-      return false;
+          document.getElementById('beta-slider').addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            window.particleConfig.particleCount = value;
+            document.getElementById('beta-value').textContent = value;
+            window.updateParticles(value);
+          });
+
+          document.getElementById('gamma-slider').addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            window.particleConfig.particleSize = value;
+            document.getElementById('gamma-value').textContent = value.toFixed(1);
+            window.updateParticleSize(value);
+          });
+
+          // Toggle controls visibility
+          const toggleButton = document.getElementById('toggle-controls');
+          const controlsDiv = document.getElementById('particle-controls');
+          toggleButton.addEventListener('click', () => {
+            controlsDiv.classList.toggle('hidden');
+            const isExpanded = !controlsDiv.classList.contains('hidden');
+            toggleButton.setAttribute('aria-expanded', isExpanded);
+            toggleButton.textContent = isExpanded ? '**' : '*';
+          });
+        })
+        .catch(error => {
+          console.error('Failed to load Three.js:', error);
+          document.getElementById('bg').style.display = 'none';
+        });
     });
-  }
-</script>
+
+    // Particle field visualization
+    function initAnimation(THREE) {
+      const canvas = document.getElementById('bg');
+      if (!canvas) return;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+      camera.position.z = 600;
+
+      const isMobile = window.innerWidth < 768;
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: !isMobile, alpha: true });
+      renderer.setClearColor(0x000000, 0);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+
+      let particleCount = window.particleConfig.particleCount;
+      const maxRange = 1000;
+      let offsets = new Float32Array(particleCount);
+      const vertices = new Float32Array(particleCount * 3);
+      const colors = new Float32Array(particleCount * 3);
+      const sizes = new Float32Array(particleCount);
+      const palette = [0x1A3C34, 0x2E8B57, 0x66CDAA];
+
+      for (let i = 0; i < particleCount; i++) {
+        vertices[i * 3] = THREE.MathUtils.randFloatSpread(maxRange);
+        vertices[i * 3 + 1] = THREE.MathUtils.randFloatSpread(maxRange);
+        vertices[i * 3 + 2] = THREE.MathUtils.randFloatSpread(maxRange);
+
+        const color = new THREE.Color(palette[Math.floor(Math.random() * palette.length)]);
+        colors[i * 3] = color.r;
+        colors[i * 3 + 1] = color.g;
+        colors[i * 3 + 2] = color.b;
+
+        offsets[i] = Math.random() * 5;
+        sizes[i] = window.particleConfig.particleSize + offsets[i];
+      }
+
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+      geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+      geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+      const material = new THREE.ShaderMaterial({
+        uniforms: { time: { value: 0 } },
+        vertexShader: `
+          attribute float size;
+          attribute vec3 color;
+          varying vec3 vColor;
+          void main() {
+            vColor = color;
+            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+            gl_PointSize = size * (300.0 / -mvPosition.z);
+            gl_Position = projectionMatrix * mvPosition;
+          }
+        `,
+        fragmentShader: `
+          varying vec3 vColor;
+          void main() {
+            float dist = length(gl_PointCoord - vec2(0.5));
+            if (dist > 0.5) discard;
+            gl_FragColor = vec4(vColor, 0.8);
+          }
+        `,
+        blending: THREE.AdditiveBlending,
+        depthTest: false,
+        transparent: true
+      });
+
+      let particles = new THREE.Points(geometry, material);
+      scene.add(particles);
+
+      // Update functions
+      window.updateParticles = function(newParticleCount) {
+        scene.remove(particles);
+        particleCount = newParticleCount;
+        offsets = new Float32Array(particleCount);
+        const vertices = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+        const sizes = new Float32Array(particleCount);
+
+        for (let i = 0; i < particleCount; i++) {
+          vertices[i * 3] = THREE.MathUtils.randFloatSpread(maxRange);
+          vertices[i * 3 + 1] = THREE.MathUtils.randFloatSpread(maxRange);
+          vertices[i * 3 + 2] = THREE.MathUtils.randFloatSpread(maxRange);
+
+          const color = new THREE.Color(palette[Math.floor(Math.random() * palette.length)]);
+          colors[i * 3] = color.r;
+          colors[i * 3 + 1] = color.g;
+          colors[i * 3 + 2] = color.b;
+
+          offsets[i] = Math.random() * 5;
+          sizes[i] = window.particleConfig.particleSize + offsets[i];
+        }
+
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+        particles = new THREE.Points(geometry, material);
+        scene.add(particles);
+      };
+
+      window.updateParticleSize = function(newSize) {
+        const sizes = particles.geometry.attributes.size.array;
+        for (let i = 0; i < particleCount; i++) {
+          sizes[i] = newSize + offsets[i];
+        }
+        particles.geometry.attributes.size.needsUpdate = true;
+      };
+
+      // Device orientation setup
+      let useDeviceOrientation = false;
+      let gammaInfluence = 0, betaInfluence = 0;
+      if ('DeviceOrientationEvent' in window) {
+        window.addEventListener('deviceorientation', (event) => {
+          if (event.beta !== null && event.gamma !== null) {
+            useDeviceOrientation = true;
+            gammaInfluence = THREE.MathUtils.clamp(THREE.MathUtils.degToRad(event.gamma || 0) / 180, -0.001, 0.001);
+            betaInfluence = THREE.MathUtils.clamp(THREE.MathUtils.degToRad(event.beta || 0) / 180, -0.001, 0.001);
+          }
+        });
+      }
+
+      // Resize handler with debounce
+      let resizeTimeout;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+          camera.aspect = window.innerWidth / window.innerHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(window.innerWidth, window.innerHeight);
+        }, 250);
+      });
+
+      // Animation loop
+      let lastTime = 0;
+      const frameInterval = isMobile ? 32 : 16;
+      function animate(currentTime) {
+        requestAnimationFrame(animate);
+
+        const deltaTime = currentTime - lastTime;
+        if (deltaTime < frameInterval || document.hidden) return;
+        lastTime = currentTime;
+
+        material.uniforms.time.value = currentTime * 0.001;
+
+        let baseRotationY = window.particleConfig.rotationSpeed;
+        let baseRotationX = 0.0001;
+        if (useDeviceOrientation) {
+          baseRotationY += gammaInfluence;
+          baseRotationX += betaInfluence;
+        }
+        particles.rotation.y += baseRotationY;
+        particles.rotation.x += baseRotationX;
+
+        const positions = particles.geometry.attributes.position.array;
+        for (let i = 0; i < positions.length; i += 3) {
+          positions[i + 2] += Math.sin(currentTime * 0.0005 + positions[i]) * 0.05;
+          if (positions[i + 2] > maxRange / 2) positions[i + 2] -= maxRange;
+        }
+        particles.geometry.attributes.position.needsUpdate = true;
+
+        renderer.render(scene, camera);
+      }
+      animate(0);
+    }
+
+    // Store original values globally for α and γ
+    let originalAlpha, originalGamma;
+
+    // Function to update α and γ sliders and their displayed values
+    function updateAlphaGammaSliders(alpha, gamma) {
+      document.getElementById('alpha-slider').value = alpha;
+      document.getElementById('gamma-slider').value = gamma;
+      document.getElementById('alpha-value').textContent = alpha.toFixed(4);
+      document.getElementById('gamma-value').textContent = gamma.toFixed(1);
+    }
+
+    // Reference to the "Get in touch" CTA button
+    const contactButton = document.getElementById('contact-button'); // Adjust ID as needed
+
+    // On hover start
+    contactButton.addEventListener('mouseenter', () => {
+      // Capture original values of α and γ
+      originalAlpha = window.particleConfig.rotationSpeed;
+      originalGamma = window.particleConfig.particleSize;
+
+      // Set intense values for α and γ (β remains unchanged)
+      window.particleConfig.rotationSpeed = 0.0065;  // α
+      window.particleConfig.particleSize = 10.0;     // γ
+
+      // Update sliders and displayed values for α and γ
+      updateAlphaGammaSliders(0.0065, 10.0);
+
+      // Update particle size (γ), no change to particle count (β)
+      window.updateParticleSize(10.0);
+    });
+
+    // On hover end
+    contactButton.addEventListener('mouseleave', () => {
+      // Restore original values of α and γ
+      window.particleConfig.rotationSpeed = originalAlpha;
+      window.particleConfig.particleSize = originalGamma;
+
+      // Update sliders and displayed values for α and γ
+      updateAlphaGammaSliders(originalAlpha, originalGamma);
+
+      // Restore particle size (γ)
+      window.updateParticleSize(originalGamma);
+    });
+
+    // Foreground interactivity
+    if (contactButton) {
+      contactButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        const email = ['contact', '@', 'technika', '.', 'digital'].join('');
+        const subject = encodeURIComponent('Website Inquiry');
+        const body = encodeURIComponent(
+          "Dear Technika Digital Team,\n" +
+          "I'd like to discuss [topic].\n" +
+          "Details: [details]\n" +
+          "Available times: [time slots]\n" +
+          "Thank you,\n"
+        );
+        window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+        return false;
+      });
+    }
+  </script>
 </body>
 </html>
