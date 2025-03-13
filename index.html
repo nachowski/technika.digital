@@ -320,26 +320,22 @@
   }
 
   // Foreground interactivity
-  document.addEventListener('DOMContentLoaded', () => {
-    const yearElement = document.getElementById('current-year');
-    if (yearElement) yearElement.textContent = new Date().getFullYear();
-
-    const contactButton = document.getElementById('contact-button');
-    if (contactButton) {
-      contactButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        const email = ['contact', '@', 'technika', '.', 'digital'].join('');
-        const subject = encodeURIComponent('Technical Challenge');
-        const body = encodeURIComponent(
-          'Hello,\n\n' +
-          'I\'d like to discuss a technical challenge.\n\n' +
-          'Brief description of challenge:\n\n' +
-          'Best times to connect:\n\n' +
-          'Thank you,'
-        );
-        window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-      });
-    }
+  const contactButton = document.getElementById('contact-button');
+  if (contactButton) {
+    contactButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      const email = ['contact', '@', 'technika', '.', 'digital'].join('');
+      const subject = encodeURIComponent('Website Inquiry');
+      const body = encodeURIComponent(
+        'Dear Technika Digital Team,\n\n' +
+        'I’d like to discuss [topic].\n\n' +
+        'Details: [details]\n\n' +
+        'Available times: [time slots]\n\n' +
+        'Thank you,\n'
+      );
+      window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+    });
+  }
   });
 </script>
 </body>
