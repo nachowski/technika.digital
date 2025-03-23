@@ -47,7 +47,7 @@
       z-index: 2;
       max-width: 760px;
       margin: 0 auto;
-      padding: 2.5rem 2rem;
+      padding: 3rem 2rem;
     }
 
     header {
@@ -72,7 +72,7 @@
       font-style: italic;
       font-size: 1.25rem;
       color: #C9E4DE;
-      margin-bottom: 2.5rem;
+      margin-bottom: 3rem;
       max-width: 600px;
       line-height: 1.8;
     }
@@ -81,28 +81,32 @@
       display: block;
       font-style: normal;
       font-size: 0.9rem;
-      margin-top: 0.35rem;
+      margin-top: 0.5rem;
       color: #8AB9B5;
     }
 
     h2 {
       font-size: 1.5rem;
-      margin: 2rem 0 0.6rem 0;
+      margin: 0 0 1rem 0;
       font-family: "Doto", sans-serif;
       font-weight: 400;
       font-variation-settings: "ROND" 0;
       color: #66CDAA;
     }
 
+    h2:not(:first-of-type) {
+      margin-top: 3rem;
+    }
+
     p {
-      margin-bottom: 1.5rem;
+      margin: 0 0 2rem 0;
       color: #C9E4DE;
       font-size: 1.1rem;
       line-height: 1.8;
     }
 
     .cta {
-      margin: 0.6rem 0 1.5rem;
+      margin: 1.5rem 0 3rem;
     }
 
     .button {
@@ -128,7 +132,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-top: 5rem;
+      margin-top: 2rem;
       padding-top: 2rem;
       border-top: 1px solid #1A3C34;
       font-size: 0.9rem;
@@ -137,6 +141,8 @@
 
     footer p {
       margin: 0;
+      font-size: 0.9rem;
+      color: #8AB9B5;
     }
 
     #toggle-controls {
@@ -172,11 +178,13 @@
     @media (max-width: 768px) {
       .container { padding: 2rem 1.5rem; }
       h1 { font-size: 1.8rem; }
-      .quote { font-size: 1.1rem; margin-bottom: 2.5rem; }
-      h2 { font-size: 1.3rem; margin: 2rem 0 0.6rem 0; }
-      p { font-size: 1rem; margin-bottom: 1.5rem; }
-      .cta { margin: 0.6rem 0 1.5rem; }
-      .button { padding: 0.9rem 1.8rem; font-size: 1rem; }
+      header { margin-bottom: 2rem; }
+      .quote { font-size: 1.1rem; margin-bottom: 2rem; }
+      h2 { font-size: 1.3rem; margin: 0 0 0.75rem 0; }
+      h2:not(:first-of-type) { margin-top: 2rem; }
+      p { font-size: 1rem; margin: 0 0 1.5rem 0; }
+      .cta { margin: 1rem 0 2rem; }
+      .button { padding: 0.75rem 1.5rem; font-size: 1rem; }
     }
   </style>
 </head>
